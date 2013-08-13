@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import re
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 KEYWORDS_UP = ('ssl', 'uri', 'url', 'uuid', 'eta')
 KEYWORDS_DOWN = ('args', 'kwargs')
@@ -12,12 +12,17 @@ UUID_REGEX = re.compile(r'^[\w]{8}(-[\w]{4}){3}-[\w]{12}$')
 def format_time(time):
     return datetime.fromtimestamp(time).strftime("%Y-%m-%d %H:%M:%S")
 
+def format_relative_time(time):
+    delta = datetime.now() - datetime.fromtimestamp(time)
+    return str(delta).split('.')[0] + ' ago'
 
 def humanize(obj, type=None, length=None):
     if obj is None:
         obj = ''
     elif type == 'time':
         obj = format_time(float(obj)) if obj else '-'
+    elif type == 'relativetime':
+        obj = format_relative_time(float(obj)) if obj else '-'
     elif isinstance(obj, basestring) and not re.match(UUID_REGEX, obj):
         obj = obj.replace('-', ' ').replace('_', ' ')
         obj = re.sub('|'.join(KEYWORDS_UP),
